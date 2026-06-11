@@ -3,70 +3,185 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>iWiW - Kezdőlap</title>
+  <title>iWiW - Hogyismint</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <style>
     body { font-family: "Tahoma", Arial, sans-serif; background: #f4f4f4; }
     .iw-header { background: linear-gradient(to right, #003399, #0066cc); }
-    .post { background: white; border: 1px solid #999; }
+    .post { background: white; border: 1px solid #999; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .user-card:hover { background-color: #f0f7ff; }
   </style>
 </head>
-<body>
+<body class="min-h-screen">
 
-<header class="iw-header text-white p-3 flex justify-between items-center">
+<header class="iw-header text-white p-4 flex justify-between items-center shadow">
   <div class="flex items-center gap-4">
-    <h1 class="text-3xl font-bold">i<span class="text-yellow-300">wiw</span></h1>
-    <span class="text-sm">Hogyismint</span>
+    <h1 class="text-4xl font-bold tracking-wider">i<span class="text-yellow-300">wiw</span></h1>
+    <span class="text-lg">Hogyismint</span>
   </div>
-  <nav class="flex gap-6 text-sm">
-    <a href="index.html" class="hover:underline font-bold">Kezdőlap</a>
-    <a href="profil.html" class="hover:underline">Profil</a>
-    <a href="felhasznalok.html" class="hover:underline">Felhasználók</a>
-    <a href="uzenetek.html" class="hover:underline">Üzenetek</a>
-  </nav>
-  <a href="#" onclick="logout()" class="text-sm hover:underline">Kijelentkezés</a>
+  <div class="flex items-center gap-6 text-sm">
+    <button onclick="showRegisterModal()" class="bg-white text-blue-700 px-5 py-2 rounded font-bold">Regisztráció</button>
+    <button onclick="fakeLogin()" class="hover:underline">Bejelentkezés</button>
+  </div>
 </header>
 
-<div class="max-w-6xl mx-auto p-6 flex gap-6">
+<div class="max-w-7xl mx-auto p-6 flex gap-6">
 
-  <!-- Bal oszlop -->
-  <div class="w-64 bg-white border p-4 text-center">
-    <img id="myAvatar" src="https://i.pravatar.cc/120" class="mx-auto rounded border-4 border-white shadow">
-    <h2 id="myName" class="font-bold mt-3">Hogyismint</h2>
-    <p id="myCity" class="text-gray-600">Eger</p>
+  <!-- Bal profil -->
+  <div class="w-64 bg-white border p-5 text-center">
+    <img id="currentAvatar" src="https://i.pravatar.cc/120" class="mx-auto w-28 h-28 rounded border-4 border-white shadow">
+    <h2 id="currentName" class="font-bold mt-4 text-xl">Hogyismint</h2>
+    <p id="currentCity" class="text-gray-600">Eger • Online</p>
   </div>
 
   <!-- Középső feed -->
   <div class="flex-1 max-w-2xl">
     <div class="bg-white border p-5 mb-6">
-      <textarea id="postText" rows="3" class="w-full border p-4 resize-y" placeholder="Mi jár a fejedben?"></textarea>
-      <button onclick="publishPost()" class="mt-4 bg-blue-700 text-white px-8 py-2 font-bold hover:bg-blue-800">Küldés</button>
+      <textarea id="postText" rows="4" class="w-full border p-4 text-base" placeholder="Mi jár a fejedben? Írj valamit..."></textarea>
+      <button onclick="publishPost()" class="mt-4 bg-blue-700 hover:bg-blue-800 text-white px-10 py-3 font-bold">Küldés</button>
     </div>
     <div id="feed" class="space-y-6"></div>
   </div>
 
-  <!-- Jobb oszlop -->
+  <!-- Jobb oldal - Felhasználók -->
   <div class="w-80 bg-white border p-5">
-    <h3 class="font-bold mb-4">Regisztrált felhasználók</h3>
-    <div id="usersList" class="space-y-4"></div>
+    <h3 class="font-bold mb-4 text-lg">Regisztrált felhasználók (<span id="userCount">10</span>)</h3>
+    <input id="searchInput" onkeyup="searchUsers()" placeholder="Keresés..." class="w-full border p-2 mb-4">
+    <div id="usersList" class="space-y-3 max-h-[70vh] overflow-y-auto"></div>
+  </div>
+</div>
+
+<!-- Regisztráció ablak -->
+<div id="registerModal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+  <div class="bg-white p-8 rounded-lg w-full max-w-md">
+    <h2 class="text-2xl font-bold mb-6">Új iWiW profil</h2>
+    <input id="regName" type="text" placeholder="Teljes név" class="w-full border p-3 mb-3">
+    <input id="regCity" type="text" placeholder="Város" class="w-full border p-3 mb-6">
+    <button onclick="registerUser()" class="w-full bg-blue-700 text-white py-4 font-bold text-lg">Regisztrálok</button>
+    <button onclick="closeRegisterModal()" class="w-full mt-3 text-gray-600">Mégse</button>
   </div>
 </div>
 
 <script>
-// Adatok
-let users = JSON.parse(localStorage.getItem('iw_users')) || [ /* 10 alap felhasználó */ ];
-let posts = JSON.parse(localStorage.getItem('iw_posts')) || [];
-let currentUser = JSON.parse(localStorage.getItem('currentUser')) || {name: "Hogyismint", city: "Eger", avatar: "https://i.pravatar.cc/120"};
+  let users = JSON.parse(localStorage.getItem('iw_users')) || [
+    {id:1,name:"Kovács Anna",city:"Budapest",avatar:"https://i.pravatar.cc/48?u=1"},
+    {id:2,name:"Nagy Péter",city:"Debrecen",avatar:"https://i.pravatar.cc/48?u=2"},
+    {id:3,name:"Szabó Eszter",city:"Szeged",avatar:"https://i.pravatar.cc/48?u=3"},
+    {id:4,name:"Tóth László",city:"Győr",avatar:"https://i.pravatar.cc/48?u=4"},
+    {id:5,name:"Horváth Júlia",city:"Pécs",avatar:"https://i.pravatar.cc/48?u=5"}
+  ];
 
-// Funkciók (röviden)
-function renderFeed() { /* ... */ }
-function publishPost() { /* ... */ }
-function renderUsers() { /* ... */ }
+  let currentUser = JSON.parse(localStorage.getItem('currentUser')) || {name:"Hogyismint", city:"Eger", avatar:"https://i.pravatar.cc/120"};
+  let posts = JSON.parse(localStorage.getItem('iw_posts')) || [];
 
-// Indítás
-renderFeed();
-renderUsers();
+  function saveData() {
+    localStorage.setItem('iw_users', JSON.stringify(users));
+    localStorage.setItem('iw_posts', JSON.stringify(posts));
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+  }
+
+  function renderUsers(filtered = users) {
+    document.getElementById('userCount').textContent = filtered.length;
+    const list = document.getElementById('usersList');
+    list.innerHTML = '';
+    filtered.forEach(user => {
+      list.innerHTML += `
+        <div class="user-card flex gap-3 p-3 border rounded">
+          <img src="${user.avatar}" class="w-12 h-12 rounded">
+          <div>
+            <div class="font-medium">${user.name}</div>
+            <div class="text-sm text-gray-600">${user.city}</div>
+            <button onclick="addFriend(${user.id})" class="text-blue-600 text-xs hover:underline">Ismerősnek jelölöm</button>
+          </div>
+        </div>`;
+    });
+  }
+
+  function registerUser() {
+    const name = document.getElementById('regName').value.trim();
+    const city = document.getElementById('regCity').value.trim();
+    if (!name || !city) return alert("Név és város kötelező!");
+
+    users.push({
+      id: Date.now(),
+      name: name,
+      city: city,
+      avatar: `https://i.pravatar.cc/48?u=${Date.now()}`
+    });
+    saveData();
+    renderUsers();
+    closeRegisterModal();
+    alert(`Sikeres regisztráció! Üdvözöljük, ${name}!`);
+  }
+
+  function showRegisterModal() {
+    document.getElementById('registerModal').classList.remove('hidden');
+  }
+
+  function closeRegisterModal() {
+    document.getElementById('registerModal').classList.add('hidden');
+  }
+
+  function publishPost() {
+    const text = document.getElementById('postText').value.trim();
+    if (!text) return;
+    posts.unshift({
+      user: currentUser.name,
+      time: "Most",
+      content: text
+    });
+    saveData();
+    document.getElementById('postText').value = '';
+    renderFeed();
+  }
+
+  function renderFeed() {
+    const feed = document.getElementById('feed');
+    feed.innerHTML = posts.map(p => `
+      <div class="post p-5">
+        <div class="flex items-center gap-3">
+          <img src="https://i.pravatar.cc/48" class="w-10 h-10 rounded">
+          <div>
+            <strong>${p.user}</strong><br>
+            <small class="text-gray-500">${p.time}</small>
+          </div>
+        </div>
+        <p class="mt-4 text-[15px]">${p.content}</p>
+        <div class="mt-5 text-sm text-gray-600 flex gap-6">
+          <span class="cursor-pointer hover:text-blue-600">Tetszik</span>
+          <span class="cursor-pointer hover:text-blue-600">Hozzászólás</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function searchUsers() {
+    const term = document.getElementById('searchInput').value.toLowerCase();
+    const filtered = users.filter(u => u.name.toLowerCase().includes(term) || u.city.toLowerCase().includes(term));
+    renderUsers(filtered);
+  }
+
+  function addFriend(id) {
+    const user = users.find(u => u.id === id);
+    alert(user ? `${user.name} ismerősnek jelölve!` : "Hiba");
+  }
+
+  function fakeLogin() {
+    const name = prompt("Bejelentkezés (teszt):\nAdd meg a neved:");
+    if (name) {
+      currentUser.name = name;
+      document.getElementById('currentName').textContent = name;
+      alert("Bejelentkezve mint: " + name);
+    }
+  }
+
+  // Indítás
+  document.getElementById('currentName').textContent = currentUser.name;
+  document.getElementById('currentCity').textContent = currentUser.city + " • Online";
+  renderUsers();
+  renderFeed();
 </script>
+
 </body>
 </html>
