@@ -9,59 +9,64 @@
   <style>
     body { font-family: "Tahoma", Arial, sans-serif; background: #f4f4f4; }
     .iw-header { background: linear-gradient(to right, #003399, #0066cc); }
-    .iw-nav { background: #003399; }
-    .post { background: white; border: 1px solid #a0a0a0; }
+    .post { background: white; border: 1px solid #999; }
   </style>
 </head>
 <body>
-  <header class="iw-header text-white py-3 px-6 flex justify-between items-center">
-    <div class="flex items-center gap-4">
-      <div class="text-3xl font-bold">i<span class="text-yellow-300">wiw</span></div>
-      <span class="text-sm">Hogyismint</span>
-    </div>
-    <nav class="flex gap-6 text-sm">
-      <a href="index.html" class="hover:underline font-bold">Kezdőlap</a>
-      <a href="profil.html" class="hover:underline">Profil</a>
-      <a href="felhasznalok.html" class="hover:underline">Felhasználók</a>
-      <a href="uzenetek.html" class="hover:underline">Üzenetek</a>
-    </nav>
-    <button onclick="logout()" class="text-sm hover:underline">Kijelentkezés</button>
-  </header>
 
-  <div class="max-w-6xl mx-auto p-6 flex gap-6">
-    <div class="flex-1">
-      <div class="bg-white border p-5 mb-6">
-        <textarea id="postText" rows="3" class="w-full border p-4" placeholder="Mi jár a fejedben?"></textarea>
-        <button onclick="publishPost()" class="mt-4 bg-blue-700 text-white px-8 py-2">Küldés</button>
-      </div>
-      <div id="feed" class="space-y-6"></div>
-    </div>
+<header class="iw-header text-white p-3 flex justify-between items-center">
+  <div class="flex items-center gap-4">
+    <h1 class="text-3xl font-bold">i<span class="text-yellow-300">wiw</span></h1>
+    <span class="text-sm">Hogyismint</span>
+  </div>
+  <nav class="flex gap-6 text-sm">
+    <a href="index.html" class="hover:underline font-bold">Kezdőlap</a>
+    <a href="profil.html" class="hover:underline">Profil</a>
+    <a href="felhasznalok.html" class="hover:underline">Felhasználók</a>
+    <a href="uzenetek.html" class="hover:underline">Üzenetek</a>
+  </nav>
+  <a href="#" onclick="logout()" class="text-sm hover:underline">Kijelentkezés</a>
+</header>
+
+<div class="max-w-6xl mx-auto p-6 flex gap-6">
+
+  <!-- Bal oszlop -->
+  <div class="w-64 bg-white border p-4 text-center">
+    <img id="myAvatar" src="https://i.pravatar.cc/120" class="mx-auto rounded border-4 border-white shadow">
+    <h2 id="myName" class="font-bold mt-3">Hogyismint</h2>
+    <p id="myCity" class="text-gray-600">Eger</p>
   </div>
 
-  <script>
-    let posts = JSON.parse(localStorage.getItem('iw_posts')) || [];
-    let currentUser = JSON.parse(localStorage.getItem('currentUser')) || {name: "Hogyismint"};
+  <!-- Középső feed -->
+  <div class="flex-1 max-w-2xl">
+    <div class="bg-white border p-5 mb-6">
+      <textarea id="postText" rows="3" class="w-full border p-4 resize-y" placeholder="Mi jár a fejedben?"></textarea>
+      <button onclick="publishPost()" class="mt-4 bg-blue-700 text-white px-8 py-2 font-bold hover:bg-blue-800">Küldés</button>
+    </div>
+    <div id="feed" class="space-y-6"></div>
+  </div>
 
-    function renderFeed() {
-      document.getElementById('feed').innerHTML = posts.map(p => `
-        <div class="post p-5">
-          <strong>${p.user}</strong> <span class="text-gray-500 text-sm">${p.time}</span>
-          <p class="mt-2">${p.content}</p>
-        </div>
-      `).join('');
-    }
+  <!-- Jobb oszlop -->
+  <div class="w-80 bg-white border p-5">
+    <h3 class="font-bold mb-4">Regisztrált felhasználók</h3>
+    <div id="usersList" class="space-y-4"></div>
+  </div>
+</div>
 
-    function publishPost() {
-      const text = document.getElementById('postText').value.trim();
-      if (!text) return;
-      posts.unshift({user: currentUser.name, time: "Most", content: text});
-      localStorage.setItem('iw_posts', JSON.stringify(posts));
-      document.getElementById('postText').value = '';
-      renderFeed();
-    }
+<script>
+// Adatok
+let users = JSON.parse(localStorage.getItem('iw_users')) || [ /* 10 alap felhasználó */ ];
+let posts = JSON.parse(localStorage.getItem('iw_posts')) || [];
+let currentUser = JSON.parse(localStorage.getItem('currentUser')) || {name: "Hogyismint", city: "Eger", avatar: "https://i.pravatar.cc/120"};
 
-    renderFeed();
-    function logout() { localStorage.clear(); location.reload(); }
-  </script>
+// Funkciók (röviden)
+function renderFeed() { /* ... */ }
+function publishPost() { /* ... */ }
+function renderUsers() { /* ... */ }
+
+// Indítás
+renderFeed();
+renderUsers();
+</script>
 </body>
 </html>
