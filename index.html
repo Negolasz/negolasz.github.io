@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>iWiW - Hogyismint</title>
+  <title>iWiW - Kezdőlap</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <style>
@@ -11,218 +11,42 @@
     .iw-header { background: linear-gradient(to right, #003399, #0066cc); }
     .iw-nav { background: #003399; }
     .post { background: white; border: 1px solid #a0a0a0; }
-    .user-card:hover { background-color: #f0f7ff; }
   </style>
 </head>
-<body class="min-h-screen">
-
-  <!-- Fejléc -->
-  <header class="iw-header text-white py-3 px-6 flex items-center justify-between shadow-md">
+<body>
+  <header class="iw-header text-white py-3 px-6 flex justify-between items-center">
     <div class="flex items-center gap-4">
-      <div class="text-4xl font-bold tracking-wider">i<span class="text-yellow-300">wiw</span></div>
-      <div class="text-lg">Hogyismint</div>
+      <div class="text-3xl font-bold">i<span class="text-yellow-300">wiw</span></div>
+      <span class="text-sm">Hogyismint</span>
     </div>
-    <div class="flex items-center gap-6">
-      <button onclick="showRegisterModal()" class="bg-white text-blue-700 px-5 py-2 rounded font-bold hover:bg-gray-100">Regisztráció</button>
-      <button onclick="showLoginModal()" class="hover:underline text-white">Bejelentkezés</button>
-    </div>
+    <nav class="flex gap-6 text-sm">
+      <a href="index.html" class="hover:underline font-bold">Kezdőlap</a>
+      <a href="profil.html" class="hover:underline">Profil</a>
+      <a href="felhasznalok.html" class="hover:underline">Felhasználók</a>
+      <a href="uzenetek.html" class="hover:underline">Üzenetek</a>
+    </nav>
+    <button onclick="logout()" class="text-sm hover:underline">Kijelentkezés</button>
   </header>
 
-  <!-- Navigáció -->
-  <nav class="iw-nav text-white py-2 px-6 flex items-center gap-8 text-sm font-medium">
-    <a href="#" class="hover:underline">Kezdőlap</a>
-    <a href="#" class="hover:underline">Ismerőseim</a>
-    <a href="#" class="hover:underline">Felhasználók</a>
-    <a href="#" class="hover:underline">Üzenetek</a>
-    <a href="#" class="hover:underline">Profil</a>
-    <div class="flex-1"></div>
-    <input id="searchInput" onkeyup="searchUsers()" placeholder="Keresés a tagok között..." 
-           class="px-4 py-2 rounded text-black w-96 focus:outline-none">
-  </nav>
-
-  <div class="max-w-7xl mx-auto flex gap-6 p-6">
-
-    <!-- Bal profil -->
-    <div class="w-72 bg-white border border-gray-300 p-5 text-center">
-      <img id="currentAvatar" src="https://i.pravatar.cc/128" class="mx-auto w-32 h-32 border-4 border-white shadow">
-      <h2 id="currentName" class="font-bold text-2xl mt-4">Hogyismint</h2>
-      <p id="currentCity" class="text-gray-600">Eger</p>
-      <button onclick="logout()" class="mt-6 text-sm text-red-600 hover:underline">Kijelentkezés</button>
-    </div>
-
-    <!-- Középső feed -->
-    <div class="flex-1 max-w-2xl">
-      <div class="bg-white border border-gray-300 p-6 mb-6">
-        <textarea id="postText" rows="4" class="w-full border border-gray-400 p-4 resize-y" 
-                  placeholder="Mi jár a fejedben? Írj valamit a faladra..."></textarea>
-        <button onclick="publishPost()" 
-                class="mt-4 bg-blue-700 hover:bg-blue-800 text-white px-10 py-3 font-bold">Küldés</button>
+  <div class="max-w-6xl mx-auto p-6 flex gap-6">
+    <div class="flex-1">
+      <div class="bg-white border p-5 mb-6">
+        <textarea id="postText" rows="3" class="w-full border p-4" placeholder="Mi jár a fejedben?"></textarea>
+        <button onclick="publishPost()" class="mt-4 bg-blue-700 text-white px-8 py-2">Küldés</button>
       </div>
       <div id="feed" class="space-y-6"></div>
-    </div>
-
-    <!-- Jobb oldali felhasználók -->
-    <div class="w-80 bg-white border border-gray-300 p-5">
-      <h3 class="font-bold mb-4 text-lg">Regisztrált tagok (<span id="userCount">10</span>)</h3>
-      <div id="usersList" class="space-y-4 max-h-[70vh] overflow-auto pr-2"></div>
-    </div>
-  </div>
-
-  <!-- Regisztráció Modal -->
-  <div id="registerModal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-    <div class="bg-white p-8 rounded-lg w-full max-w-md">
-      <h2 class="text-2xl font-bold mb-6">Új iWiW profil</h2>
-      <input id="regName" placeholder="Teljes név" class="w-full border p-4 mb-3">
-      <input id="regCity" placeholder="Város" class="w-full border p-4 mb-6">
-      <button onclick="registerUser()" class="w-full bg-blue-700 text-white py-4 font-bold">Regisztráció</button>
-      <button onclick="closeModals()" class="w-full mt-3 text-gray-600">Mégse</button>
-    </div>
-  </div>
-
-  <!-- Bejelentkezés Modal -->
-  <div id="loginModal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-    <div class="bg-white p-8 rounded-lg w-full max-w-md">
-      <h2 class="text-2xl font-bold mb-6">Bejelentkezés</h2>
-      <select id="loginUser" class="w-full border p-4 mb-6"></select>
-      <button onclick="login()" class="w-full bg-blue-700 text-white py-4 font-bold">Bejelentkezés</button>
-      <button onclick="closeModals()" class="w-full mt-3 text-gray-600">Mégse</button>
     </div>
   </div>
 
   <script>
-    let users = JSON.parse(localStorage.getItem('iw_users')) || [
-      {id:1, name:"Kovács Anna", city:"Budapest", avatar:"https://i.pravatar.cc/48?u=1"},
-      {id:2, name:"Nagy Péter", city:"Debrecen", avatar:"https://i.pravatar.cc/48?u=2"},
-      {id:3, name:"Szabó Eszter", city:"Szeged", avatar:"https://i.pravatar.cc/48?u=3"},
-      {id:4, name:"Tóth László", city:"Győr", avatar:"https://i.pravatar.cc/48?u=4"},
-      {id:5, name:"Horváth Júlia", city:"Pécs", avatar:"https://i.pravatar.cc/48?u=5"},
-      {id:6, name:"Varga Mihály", city:"Miskolc", avatar:"https://i.pravatar.cc/48?u=6"},
-      {id:7, name:"Kiss Zoltán", city:"Eger", avatar:"https://i.pravatar.cc/48?u=7"},
-      {id:8, name:"Németh Katalin", city:"Székesfehérvár", avatar:"https://i.pravatar.cc/48?u=8"},
-      {id:9, name:"Farkas Dávid", city:"Kecskemét", avatar:"https://i.pravatar.cc/48?u=9"},
-      {id:10, name:"Borbély Réka", city:"Sopron", avatar:"https://i.pravatar.cc/48?u=10"}
-    ];
-
-    let currentUser = JSON.parse(localStorage.getItem('currentUser')) || 
-      {id:0, name:"Hogyismint", city:"Eger", avatar:"https://i.pravatar.cc/128"};
-
     let posts = JSON.parse(localStorage.getItem('iw_posts')) || [];
-
-    function saveData() {
-      localStorage.setItem('iw_users', JSON.stringify(users));
-      localStorage.setItem('iw_posts', JSON.stringify(posts));
-      localStorage.setItem('currentUser', JSON.stringify(currentUser));
-    }
-
-    function renderCurrentUser() {
-      document.getElementById('currentName').textContent = currentUser.name;
-      document.getElementById('currentCity').textContent = currentUser.city;
-      document.getElementById('currentAvatar').src = currentUser.avatar;
-    }
-
-    function renderUsers(filtered = users) {
-      const container = document.getElementById('usersList');
-      container.innerHTML = '';
-      document.getElementById('userCount').textContent = filtered.length;
-
-      filtered.forEach(user => {
-        const div = document.createElement('div');
-        div.className = "user-card flex gap-4 p-4 border border-gray-200 rounded cursor-pointer";
-        div.innerHTML = `
-          <img src="${user.avatar}" class="w-12 h-12 border">
-          <div class="flex-1">
-            <div class="font-medium">${user.name}</div>
-            <div class="text-sm text-gray-600">${user.city}</div>
-            <button onclick="event.stopImmediatePropagation(); addFriend(${user.id});" 
-                    class="text-blue-700 text-xs mt-2 hover:underline">Ismerősnek jelölöm</button>
-          </div>
-        `;
-        container.appendChild(div);
-      });
-    }
-
-    function registerUser() {
-      const name = document.getElementById('regName').value.trim();
-      const city = document.getElementById('regCity').value.trim();
-      if (!name || !city) return alert("Név és város kötelező!");
-
-      const newUser = {
-        id: Date.now(),
-        name: name,
-        city: city,
-        avatar: `https://i.pravatar.cc/48?u=${Date.now()}`
-      };
-
-      users.push(newUser);
-      saveData();
-      renderUsers();
-      closeModals();
-      alert(`Sikeres regisztráció! Üdvözöljük, ${name}!`);
-    }
-
-    function showRegisterModal() {
-      document.getElementById('registerModal').classList.remove('hidden');
-    }
-
-    function showLoginModal() {
-      const select = document.getElementById('loginUser');
-      select.innerHTML = '';
-      users.forEach(user => {
-        const opt = document.createElement('option');
-        opt.value = user.id;
-        opt.textContent = user.name + " (" + user.city + ")";
-        select.appendChild(opt);
-      });
-      document.getElementById('loginModal').classList.remove('hidden');
-    }
-
-    function login() {
-      const id = parseInt(document.getElementById('loginUser').value);
-      currentUser = users.find(u => u.id === id);
-      if (currentUser) {
-        saveData();
-        renderCurrentUser();
-        closeModals();
-      }
-    }
-
-    function logout() {
-      if (confirm("Kijelentkezel?")) {
-        currentUser = {id:0, name:"Hogyismint", city:"Eger", avatar:"https://i.pravatar.cc/128"};
-        saveData();
-        renderCurrentUser();
-      }
-    }
-
-    function addFriend(id) {
-      const user = users.find(u => u.id === id);
-      if (user) alert(`${user.name} ismerősnek jelölve!`);
-    }
-
-    function searchUsers() {
-      const term = document.getElementById('searchInput').value.toLowerCase();
-      const filtered = users.filter(u => 
-        u.name.toLowerCase().includes(term) || u.city.toLowerCase().includes(term)
-      );
-      renderUsers(filtered);
-    }
+    let currentUser = JSON.parse(localStorage.getItem('currentUser')) || {name: "Hogyismint"};
 
     function renderFeed() {
-      const feed = document.getElementById('feed');
-      feed.innerHTML = posts.map((post, i) => `
-        <div class="post p-6 rounded">
-          <div class="flex items-center gap-3">
-            <img src="${post.avatar || 'https://i.pravatar.cc/48'}" class="w-10 h-10 border">
-            <div>
-              <strong>${post.user}</strong>
-              <span class="text-xs text-gray-500 ml-2">${post.time}</span>
-            </div>
-          </div>
-          <p class="mt-4 text-[15.5px]">${post.content}</p>
-          <div class="mt-5 flex gap-8 text-sm text-gray-600">
-            <span class="cursor-pointer hover:text-blue-700">Tetszik (${post.likes || 0})</span>
-            <span class="cursor-pointer hover:text-blue-700">Hozzászólás</span>
-          </div>
+      document.getElementById('feed').innerHTML = posts.map(p => `
+        <div class="post p-5">
+          <strong>${p.user}</strong> <span class="text-gray-500 text-sm">${p.time}</span>
+          <p class="mt-2">${p.content}</p>
         </div>
       `).join('');
     }
@@ -230,33 +54,14 @@
     function publishPost() {
       const text = document.getElementById('postText').value.trim();
       if (!text) return;
-
-      posts.unshift({
-        user: currentUser.name,
-        avatar: currentUser.avatar,
-        time: "Most",
-        content: text,
-        likes: 0
-      });
-
+      posts.unshift({user: currentUser.name, time: "Most", content: text});
+      localStorage.setItem('iw_posts', JSON.stringify(posts));
       document.getElementById('postText').value = '';
-      saveData();
       renderFeed();
     }
 
-    function closeModals() {
-      document.getElementById('registerModal').classList.add('hidden');
-      document.getElementById('loginModal').classList.add('hidden');
-    }
-
-    // Indítás
-    renderCurrentUser();
-    renderUsers();
     renderFeed();
+    function logout() { localStorage.clear(); location.reload(); }
   </script>
-
-  <footer class="text-center text-xs text-gray-500 py-8">
-    iWiW nosztalgia klón • 2002–2026 • Teljesen működő verzió (localStorage)
-  </footer>
 </body>
 </html>

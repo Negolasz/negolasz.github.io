@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iWiW - Felhasználók</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+  <!-- Ugyanaz a header mint fent -->
+  <header class="bg-gradient-to-r from-blue-800 to-blue-600 text-white py-3 px-6 flex justify-between">
+    <div class="flex items-center gap-4">
+      <div class="text-3xl font-bold">i<span class="text-yellow-300">wiw</span></div>
+    </div>
+    <nav class="flex gap-6 text-sm">
+      <a href="index.html">Kezdőlap</a>
+      <a href="profil.html">Profil</a>
+      <a href="felhasznalok.html" class="font-bold">Felhasználók</a>
+      <a href="uzenetek.html">Üzenetek</a>
+    </nav>
+  </header>
+
+  <div class="max-w-4xl mx-auto p-6">
+    <button onclick="showRegister()" class="bg-blue-700 text-white px-6 py-3 mb-6">Új regisztráció</button>
+    <div id="usersList" class="grid grid-cols-2 gap-4"></div>
+  </div>
+
+  <script>
+    // Regisztráció és felhasználó lista logika...
+    let users = JSON.parse(localStorage.getItem('iw_users')) || [];
+    // ... (további kódot kérésre bővíthetem)
+  </script>
+</body>
+</html>
